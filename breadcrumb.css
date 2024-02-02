@@ -1,26 +1,19 @@
-#breadcrumbUL {
+#breadcrumb {
     list-style: none;
-    font-size: .9rem;
-    line-height: .9rem;
     text-align: center;
-    display: inline-block;
-    float: none;
-    padding: 11px 0;
 }
 
-#breadcrumbUL li {
-    color: #555;
-    display: inline-block;
+#breadcrumb li {
+    display: inline;
     margin-right: 5px;
-
 }
 
-#breadcrumbUL li+li:before {
+#breadcrumb li+li:before {
     content: "➔ ";
+    margin-right: 5px;
 }
 
-#breadcrumbUL li a {
-    color: #555;
+#breadcrumb li a {
     text-decoration: none;
-    hyphens: none;
+    color: #333;
 }

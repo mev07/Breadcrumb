@@ -1,56 +1,63 @@
-// Initialize an array to store the user's path
-let userPath = JSON.parse(sessionStorage.getItem('userPath')) || [];
+/**
+* @fileoverview This script generates a user-path based breadcrumb navigation.
+*/
 
-// Function to update the breadcrumb and sessionStorage
-function updateBreadcrumb() {
+// DOM
+const breadcrumb = document.getElementById('breadcrumb');
 
-    // Get the breadcrumb ul-Element
-    let breadcrumb = document.getElementById('breadcrumbUL');
+// Variables
+let pageOrder = []; // Stores the order of pages visited, because sessionStorage is not ordered
 
-    // Clear the current breadcrumb
+/**
+ * Adds the current page location to the breadcrumb
+ */
+const addLocation = () => {
+    const URL = window.location.href;
+    const title = document.title;
+    if (sessionStorage.getItem(title)) {
+        removeCircle(title);
+    }
+    sessionStorage.setItem(title, URL);
+    pageOrder.push(title);
+    buildBreadcrumb();
+};
+
+/**
+ * Builds the breadcrumb navigation based on the entries stored in sessionStorage
+ */
+const buildBreadcrumb = () => {
     breadcrumb.innerHTML = '';
+    pageOrder.forEach(key => {
+        const value = sessionStorage.getItem(key);
+        const li = document.createElement('li');
+        breadcrumb.appendChild(li);
+        const a = document.createElement('a');
+        a.href = value;
+        a.textContent = key;
+        li.appendChild(a);
+    });
+};
 
-    // Build the new breadcrumb
-    for (let i = 0; i < userPath.length; i++) {
-
-        // Create a new list element for each link and add it
-        let listElement = document.createElement('li');
-        breadcrumb.appendChild(listElement);
-
-        // Create a new link element for each page in the user's path
-        let link = document.createElement('a');
-        link.href = userPath[i].url;
-        link.textContent = userPath[i].title;
-
-        // Add the link to the list element
-        listElement.appendChild(link);
+/**
+ * Removes all entries from first to second appearance including of site
+ * @param {string} title of site with more than one appearance
+ */
+const removeCircle = entry => {
+    const index = pageOrder.indexOf(entry);
+    if (index !== -1) {
+        pageOrder = pageOrder.slice(0, index);
+        Object.keys(sessionStorage).forEach(key => {
+            if (!pageOrder.includes(key)) {
+                sessionStorage.removeItem(key);
+            }
+        });
     }
+};
 
-    // Store the userPath in sessionStorage
-    sessionStorage.setItem('userPath', JSON.stringify(userPath));
-}
+// Event listeners
+window.addEventListener('load', addLocation);
 
-function handleNavigation(event) {
-    // Check if the new/current page is already in the user's path
-    let pageIndex = userPath.findIndex(page => page.url === window.location.href);
 
-    if (pageIndex !== -1) {
-        // If the page is already in the user's path, remove it and all following pages
-        userPath = userPath.slice(0, pageIndex + 1);
-    } else {
-        // Otherwise, add the new/current page to the user's path
-        userPath.push({ "url": window.location.href, "title": document.title });
-    }
-
-    // Update the breadcrumb
-    updateBreadcrumb();
-}
-
-// Listen for the popstate event, which is fired when the user navigates
-window.addEventListener('popstate', handleNavigation);
-
-// Add the current page to the user's path when the page loads
-window.addEventListener('load', handleNavigation);
 
 
 
